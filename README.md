@@ -13,8 +13,8 @@
 ## 📌 写在前面
 
 - **手写优先**：所有实现都自己写，不依赖 STL / 第三方库。
-- **逐函数推进**：代码里用 `[TODO-n]` 标记"还没填的实现"，用 `[BUG-n]` 标记"已发现、待修复的坑"。
-  函数体里暂时 `return ERROR;` 只是占位骨架，随着学习进度会被逐个替换成真正的逻辑。
+- **逐函数推进**：实现过程中遇到"容易写错的地方"会在代码里用注释标注（先写错误写法，再写正确写法），
+  方便日后回看时提醒自己。
 - **严格编译**：坚持 `-Wall -Wextra` 零警告，用 ASan / valgrind 检查越界和非法访问。
 
 ## 📂 目录结构
@@ -22,8 +22,8 @@
 ```text
 DS-C-Cpp/
 ├── main.c            # 测试 / 演示代码的入口
-├── SeqList.h         # 顺序表：宏、类型定义、函数声明（不含实现）
-├── SeqList.c         # 顺序表：函数实现
+├── SeqList.h         # 顺序表：类型定义 + 函数声明
+├── SeqList.c         # 顺序表：函数实现（动态数组版 SqList）
 ├── README.md
 └── .gitignore        # 忽略编译产物
 ```
@@ -34,7 +34,21 @@ DS-C-Cpp/
 
 | 数据结构 | 文件 | 状态 | 说明 |
 | :--- | :--- | :---: | :--- |
-| 顺序表 SeqList | `SeqList.h` / `SeqList.c` | 🚧 进行中 | 空壳骨架已搭好，实现待填 |
+| 顺序表 SeqList | `SeqList.h` / `SeqList.c` | ✅ 已完成 | 动态数组版 `SqList`，含增删改查 + 内存管理 |
+
+### 顺序表已实现接口
+
+| 函数 | 功能 | 时间复杂度 |
+| :--- | :--- | :---: |
+| `InitList` | 初始化（`malloc` 分配空间） | O(1) |
+| `DestroyList` | 销毁并释放内存 | O(1) |
+| `ListInsert` | 按位置插入 | O(n) |
+| `ListDelete` | 按位置删除，带回被删元素 | O(n) |
+| `ListUpdate` | 按位置修改 | O(1) |
+| `GetElem` | 按位取值 | O(1) |
+| `LocateElem` | 按值查找，返回 1-based 位置 | O(n) |
+| `ListLength` / `ListEmpty` | 求长度 / 判空 | O(1) |
+| `TraverseList` | 遍历打印 | O(n) |
 
 ## 🔧 编译与运行
 
@@ -58,19 +72,24 @@ gcc -fsanitize=address -g main.c SeqList.c -o seqlist && ./seqlist
 valgrind --leak-check=full ./seqlist
 ```
 
-## 🧩 代码约定
+## 🧩 约定与易错点
 
-| 标记 | 含义 |
+| 项 | 说明 |
 | :--- | :--- |
-| `[TODO-n]` | 待办编号，与实现文件里的注释一一对应 |
-| `[BUG-n]`  | 已确认的缺陷位置 |
-| `OK` / `ERROR` | 统一的返回状态码 |
+| 返回值 | 操作类函数统一返回 `bool`：`true` 成功 / `false` 失败 |
 | `ElemType` | 元素类型别名，想换类型只改这一行 |
+| 下标 | 对外接口用 **1-based** 位置 `i`，内部数组下标 `i - 1` |
+
+实现顺序表时踩过 / 特意规避的坑，记录在代码注释里：
+
+- **`malloc` 要判空**：内存分配失败返回 `NULL`，不检查就直接解引用会崩溃。
+- **`free` 后置空指针**：释放后把 `L->data = NULL`，避免二次 `free`（double-free）。
+- **出参指针要判 `NULL`**：`GetElem` / `ListDelete` 的 `e` 允许传 `NULL`，写入前先判断。
+- **移动元素方向**：插入从后往前搬（防覆盖），删除从前往后搬。
 
 ## 🗺️ 学习路线（Roadmap）
 
-- [x] 顺序表 SeqList（骨架 + 测试）
-- [ ] 顺序表 SeqList（补全所有实现）
+- [x] 顺序表 SeqList（动态数组 `SqList`）
 - [ ] 单链表 LinkedList
 - [ ] 栈 Stack
 - [ ] 队列 Queue
@@ -83,5 +102,6 @@ valgrind --leak-check=full ./seqlist
 
 ## 📝 备注
 
-- `SeqList`（无后缀）是编译产物，不应提交到仓库；如已误提交，可加入 `.gitignore` 的"可执行文件"区并 `git rm --cached SeqList`。
+- 根目录下的 `SeqList`、`main`（无后缀）都是编译产物，不应提交到仓库；
+  如已误提交，可加入 `.gitignore` 的"可执行文件"区并 `git rm --cached <文件名>`。
 - 学习笔记和解题思路会随进度补充到这里。
