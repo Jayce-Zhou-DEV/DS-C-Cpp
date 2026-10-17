@@ -35,6 +35,7 @@ cmake-build-*/
 *.swo
 *~
 .vs/
+.build/
 
 # ---------- 系统文件 ----------
 .DS_Store
