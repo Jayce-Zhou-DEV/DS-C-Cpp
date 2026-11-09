@@ -195,12 +195,11 @@ bool SeqList_Reserve(SeqList *L, int new_capacity) {
 /* -------------------------------- 遍历 -------------------------------- */
 
 bool SeqList_Traverse(const SeqList *L, VisitFn visit) {
-    /* TODO(1): 校验 L、visit 非空
-     * TODO(2): 下标 0 → length-1 调 visit(L->data[k])
-     * TODO(3): visit 返回 false 立即中断并返回 false
-     * 注意：遍历不影响表内容，参数用 const SeqList * */
-    (void)L;
-    (void)visit;
+    if (L == NULL || visit == NULL) return false;
+    
+    for (int j = 0; j < L->length; j++) {
+        if (!visit(L->data[j])) return false;
+    }
     return true;
 }
 
