@@ -1,6 +1,6 @@
 # DS-C-Cpp
 
-> 我的数据结构手写练习仓库 · 用 C / C++ 从零实现每一种数据结构，一行一行地敲，而不是复制粘贴。
+> 我的数据结构手写练习仓库 · 用 C / C++ 从零实现每一种数据结构。
 
 ![Language](https://img.shields.io/badge/language-C%20%2F%20C%2B%2B-blue)
 ![Status](https://img.shields.io/badge/status-in%20progress-yellow)
@@ -15,93 +15,130 @@
 - **手写优先**：所有实现都自己写，不依赖 STL / 第三方库。
 - **逐函数推进**：实现过程中遇到"容易写错的地方"会在代码里用注释标注（先写错误写法，再写正确写法），
   方便日后回看时提醒自己。
-- **严格编译**：坚持 `-Wall -Wextra` 零警告，用 ASan / valgrind 检查越界和非法访问。
 
 ## 📂 目录结构
 
 ```text
 DS-C-Cpp/
-├── main.c            # 测试 / 演示代码的入口
-├── SeqList.h         # 顺序表：类型定义 + 函数声明
-├── SeqList.c         # 顺序表：函数实现（动态数组版 SqList）
+├── c/                          # C 版实现（按学习顺序编号）
+│   ├── 01_SeqList/             # 顺序表（动态数组）
+│   ├── 02_LinkedList/          # 链表   👈 下一个
+│   │   ├── singly/             #   单链表（不带头结点）
+│   │   ├── singly_head/        #   单链表（带头结点 / 哨兵）
+│   │   ├── doubly/             #   双链表（head + tail）
+│   │   ├── circular_singly/    #   循环单链表（只存 tail）
+│   │   ├── circular_doubly/    #   循环双链表（带头结点）
+│   │   └── static/             #   静态链表（数组 + 游标）
+│   ├── 03_Stack/               # 栈
+│   │   ├── sequential/         #   顺序栈
+│   │   ├── linked/             #   链栈
+│   │   └── shared/             #   共享栈（两栈共享一维数组）
+│   ├── 04_Queue/               # 队列
+│   │   ├── circular/           #   循环队列（顺序存储）
+│   │   ├── linked/             #   链队列
+│   │   └── deque/              #   双端队列
+│   ├── 05_String/              # 串
+│   │   ├── naive/              #   BF 朴素匹配
+│   │   ├── kmp/                #   KMP / next 数组
+│   │   └── bm/                 #   BM（坏字符 + 好后缀）
+│   ├── 06_Tree/                # 树
+│   │   ├── binary_tree/        #   二叉树（遍历 / 线索化）
+│   │   ├── bst/                #   二叉搜索树
+│   │   ├── avl/                #   AVL 平衡树
+│   │   ├── b_tree/             #   B 树 / B+ 树
+│   │   └── huffman/            #   哈夫曼树与编码
+│   ├── 07_Heap/                # 堆（父目录即叶子：小根/大根只差比较方向，不拆）
+│   ├── 08_Graph/               # 图
+│   │   ├── adj_matrix/         #   邻接矩阵
+│   │   ├── adj_list/           #   邻接表
+│   │   ├── orth_list/          #   十字链表（有向图）
+│   │   └── adj_multi_list/     #   邻接多重表（无向图）
+│   ├── 09_Sort/                # 排序
+│   │   ├── insert/             #   直接插入
+│   │   ├── binary_insert/      #   折半插入
+│   │   ├── shell/              #   希尔
+│   │   ├── bubble/             #   冒泡
+│   │   ├── quick/              #   快速
+│   │   ├── select/             #   简单选择
+│   │   ├── heap/               #   堆排序
+│   │   ├── merge/              #   归并
+│   │   ├── radix/              #   基数
+│   │   └── counting/           #   计数
+│   └── 10_Search/              # 查找
+│       ├── sequential/         #   顺序查找
+│       ├── binary/             #   折半查找
+│       ├── block/              #   分块查找（索引顺序表）
+│       └── hash/               #   哈希表
+├── cpp/                        # C++ 版，与 c/ 完全同构镜像
+├── build/                      # 编译产物（已被 .gitignore 忽略）
+├── main.c                      # 临时试验场：随手验证想法，不参与模块编译
 ├── README.md
-└── .gitignore        # 忽略编译产物
+└── .gitignore
 ```
 
-> 每个数据结构都会独立成一组 `Xxx.h` + `Xxx.c` + 对应测试，互不干扰。
+> 规则：
+> - **一个数据结构 = 一个目录**，目录内 `Xxx.h` + `Xxx.c` + `test_Xxx.c` 三件套；
+> - **变体 = 子目录**：只有“操作语义真的变了”才拆——遍历终止条件不同、能否 O(1) 拿到前驱、
+>   内存模型不同，都属于语义变化，应独立成目录（如 `02_LinkedList` 的六个子目录）；
+>   仅改元素类型、加个辅助函数这类变化，不新建目录；
+> - **编号即学习顺序**，照着 01 → 10 推进，不需要每次重新决定学什么；
+> - 编译产物一律丢进 `build/`，源码目录保持干净。
 
 ## ✅ 学习进度
 
-| 数据结构 | 文件 | 状态 | 说明 |
-| :--- | :--- | :---: | :--- |
-| 顺序表 SeqList | `SeqList.h` / `SeqList.c` | ✅ 已完成 | 动态数组版 `SqList`，含增删改查 + 内存管理 |
 
-### 顺序表已实现接口
+## 🗺️ 学习路线（照着目录编号推进）
 
-| 函数 | 功能 | 时间复杂度 |
-| :--- | :--- | :---: |
-| `InitList` | 初始化（`malloc` 分配空间） | O(1) |
-| `DestroyList` | 销毁并释放内存 | O(1) |
-| `ListInsert` | 按位置插入 | O(n) |
-| `ListDelete` | 按位置删除，带回被删元素 | O(n) |
-| `ListUpdate` | 按位置修改 | O(1) |
-| `GetElem` | 按位取值 | O(1) |
-| `LocateElem` | 按值查找，返回 1-based 位置 | O(n) |
-| `ListLength` / `ListEmpty` | 求长度 / 判空 | O(1) |
-| `TraverseList` | 遍历打印 | O(n) |
+- [ ] `01_SeqList` 顺序表 SeqList（动态数组 `SqList`）👈 **下一个学这个**
+- [ ] `02_LinkedList` 链表 LinkedList
+  - [ ] `singly` 单链表（不带头结点）
+  - [ ] `singly_head` 单链表（带头结点 / 哨兵）
+  - [ ] `doubly` 双链表（head + tail，已知结点 O(1) 删除）
+  - [ ] `circular_singly` 循环单链表（只存 tail）
+  - [ ] `circular_doubly` 循环双链表（带头结点）
+  - [ ] `static` 静态链表（数组 + 游标）
+- [ ] `03_Stack` 栈 Stack
+  - [ ] `sequential` 顺序栈
+  - [ ] `linked` 链栈
+  - [ ] `shared` 共享栈
+- [ ] `04_Queue` 队列 Queue
+  - [ ] `circular` 循环队列
+  - [ ] `linked` 链队列
+  - [ ] `deque` 双端队列
+- [ ] `05_String` 串
+  - [ ] `naive` BF 朴素匹配
+  - [ ] `kmp` KMP
+  - [ ] `bm` BM
+- [ ] `06_Tree` 树
+  - [ ] `binary_tree` 二叉树（遍历 / 线索化）
+  - [ ] `bst` 二叉搜索树
+  - [ ] `avl` AVL 平衡树
+  - [ ] `b_tree` B 树 / B+ 树
+  - [ ] `huffman` 哈夫曼树
+- [ ] `07_Heap` 堆（单目录，不拆）
+- [ ] `08_Graph` 图
+  - [ ] `adj_matrix` 邻接矩阵
+  - [ ] `adj_list` 邻接表
+  - [ ] `orth_list` 十字链表
+  - [ ] `adj_multi_list` 邻接多重表
+- [ ] `09_Sort` 排序
+  - [ ] `insert` / `binary_insert` / `shell`
+  - [ ] `bubble` / `quick` / `select`
+  - [ ] `heap` / `merge` / `radix` / `counting`
+- [ ] `10_Search` 查找
+  - [ ] `sequential` 顺序查找
+  - [ ] `binary` 折半查找
+  - [ ] `block` 分块查找
+  - [ ] `hash` 哈希表
 
-## 🔧 编译与运行
+## 命名约定
+两条硬约定（因为各目录不共享头文件，必须靠纪律保证可组合）：
 
-以顺序表为例（`SeqList.c` 必须和 `main.c` 一起编译）：
-
-```bash
-# 普通编译（开启全部警告）
-gcc -Wall -Wextra -g main.c SeqList.c -o seqlist
-
-# 运行
-./seqlist
-```
-
-### 内存检查（推荐每次实现完都跑一遍）
-
-```bash
-# 方式一：AddressSanitizer（快）
-gcc -fsanitize=address -g main.c SeqList.c -o seqlist && ./seqlist
-
-# 方式二：valgrind
-valgrind --leak-check=full ./seqlist
-```
-
-## 🧩 约定与易错点
-
-| 项 | 说明 |
-| :--- | :--- |
-| 返回值 | 操作类函数统一返回 `bool`：`true` 成功 / `false` 失败 |
-| `ElemType` | 元素类型别名，想换类型只改这一行 |
-| 下标 | 对外接口用 **1-based** 位置 `i`，内部数组下标 `i - 1` |
-
-实现顺序表时踩过 / 特意规避的坑，记录在代码注释里：
-
-- **`malloc` 要判空**：内存分配失败返回 `NULL`，不检查就直接解引用会崩溃。
-- **`free` 后置空指针**：释放后把 `L->data = NULL`，避免二次 `free`（double-free）。
-- **出参指针要判 `NULL`**：`GetElem` / `ListDelete` 的 `e` 允许传 `NULL`，写入前先判断。
-- **移动元素方向**：插入从后往前搬（防覆盖），删除从前往后搬。
-
-## 🗺️ 学习路线（Roadmap）
-
-- [x] 顺序表 SeqList（动态数组 `SqList`）
-- [ ] 单链表 LinkedList
-- [ ] 栈 Stack
-- [ ] 队列 Queue
-- [ ] 串 / KMP
-- [ ] 树（二叉树 / 二叉搜索树）
-- [ ] 堆 / 优先队列
-- [ ] 图（邻接矩阵 / 邻接表）
-- [ ] 排序算法
-- [ ] 查找算法
+- **函数名带结构前缀**：`SinglyList_Insert` / `DList_Insert` / `CSList_Insert`，避免以后把多个结构链接进同一个程序时符号冲突；
+- **返回值统一**：返回 `bool` 的成功 `true` / 失败 `false`；返回 `int` 的成功 `0` / 失败负值，并在各自头文件顶部注明。
 
 ## 📝 备注
 
-- 根目录下的 `SeqList`、`main`（无后缀）都是编译产物，不应提交到仓库；
+- 编译产物统一生成在 `build/` 下（`.gitignore` 已忽略），不要提交到仓库；
   如已误提交，可加入 `.gitignore` 的"可执行文件"区并 `git rm --cached <文件名>`。
 - 学习笔记和解题思路会随进度补充到这里。
